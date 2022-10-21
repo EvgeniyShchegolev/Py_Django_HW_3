@@ -9,9 +9,23 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
-        with open('phones.csv', 'r') as file:
+        with open('phones.csv', 'r', encoding='utf-8') as file:
             phones = list(csv.DictReader(file, delimiter=';'))
 
         for phone in phones:
-            # TODO: Добавьте сохранение модели
-            pass
+            ph = Phone(
+                name=phone['name'],
+                price=phone['price'],
+                image=phone['image'],
+                release_date=phone['release_date'],
+                lte_exists=phone['lte_exists'],
+            )
+
+            if not ph.slug:
+                ph.slug = self._name_to_slug(ph.name)
+
+            ph.save()
+
+    def _name_to_slug(self, name: str) -> str:
+        slug = '-'.join(name.split()).lower()
+        return slug
